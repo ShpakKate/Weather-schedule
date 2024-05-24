@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { ScheduleDaily } from '../../shared/models/weatherData';
 import { MatTableDataSource } from '@angular/material/table';
 import { TableData } from '../../shared/models/table-data';
@@ -12,9 +12,6 @@ import { Subject, takeUntil } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DailyTableComponent implements OnInit, OnDestroy {
-
-  @Input() public dataDaily!: ScheduleDaily;
-
   public displayedColumns: string[] = ['City Name'];
   public dataSource!: MatTableDataSource<TableData>;
   private destroy$ = new Subject();

@@ -26,9 +26,9 @@
   </mat-card>
 
   <div *ngIf="!isCityNotFound">
-    <app-hourly-table [hidden]="!isHourly() || !weatherHourly" [dataHourly]="weatherHourly"></app-hourly-table>
+    <app-hourly-table [hidden]="!isHourly() || !weatherHourly"></app-hourly-table>
 
-    <app-daily-table [hidden]="!isDaily() || !weatherDaily" [dataDaily]="weatherDaily"></app-daily-table>
+    <app-daily-table [hidden]="!isDaily() || !weatherDaily"></app-daily-table>
   </div>
 
   <mat-error *ngIf="isCityNotFound"> City not found. Try again. </mat-error>

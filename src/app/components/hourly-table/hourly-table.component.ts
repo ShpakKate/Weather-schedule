@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ScheduleHourly } from '../../shared/models/weatherData';
 import { MatTableDataSource } from '@angular/material/table';
 import { Subject, takeUntil } from 'rxjs';
@@ -11,9 +11,6 @@ import { OpenWeatherService } from '../../services/open-weather.service';
   styleUrls: ['./hourly-table.component.scss'],
 })
 export class HourlyTableComponent implements OnInit, OnDestroy {
-
-  @Input() public dataHourly!: ScheduleHourly;
-
   public displayedColumns!: string[];
   public dataSource!: MatTableDataSource<TableData>;
   private destroy$ = new Subject();

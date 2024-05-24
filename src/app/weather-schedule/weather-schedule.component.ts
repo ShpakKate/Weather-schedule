@@ -14,7 +14,7 @@ export class WeatherScheduleComponent implements OnDestroy{
   private destroy$ = new Subject();
   public weatherHourly!: ScheduleHourly;
   public weatherDaily!: ScheduleDaily;
-  public type: string = 'daily';
+  private type: string = 'daily';
   public isCityNotFound!: boolean;
   public isCity = true;
 
