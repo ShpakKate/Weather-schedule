@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { ScheduleDaily } from '../../shared/models/weatherData';
 import { MatTableDataSource } from '@angular/material/table';
 import { TableData } from '../../shared/models/table-data';
@@ -21,6 +21,7 @@ export class DailyTableComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly openWeatherService: OpenWeatherService,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -43,6 +44,8 @@ export class DailyTableComponent implements OnInit, OnDestroy {
 
         this.data.push(this.schedule);
         this.dataSource = new MatTableDataSource<TableData>(this.data);
+
+        this.cdr.detectChanges();
       }
     })
   }

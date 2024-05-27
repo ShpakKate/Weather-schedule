@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ScheduleDaily, ScheduleHourly, WeatherData } from '../shared/models/weatherData';
 import { OpenWeatherService } from '../services/open-weather.service';
 import { Subject, takeUntil } from 'rxjs';
@@ -10,7 +10,7 @@ import { UrlParamsService } from '../services/url-params.service';
   templateUrl: './weather-schedule.component.html',
   styleUrls: ['./weather-schedule.component.scss'],
 })
-export class WeatherScheduleComponent implements OnDestroy{
+export class WeatherScheduleComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject();
   public weatherHourly!: ScheduleHourly;
   public weatherDaily!: ScheduleDaily;
@@ -24,6 +24,19 @@ export class WeatherScheduleComponent implements OnDestroy{
     private readonly route: ActivatedRoute,
     private readonly urlParamsService: UrlParamsService,
   ) {}
+
+  ngOnInit() {
+    this.route.queryParamMap.pipe(
+      takeUntil(this.destroy$),
+    ).subscribe(param => {
+      this.type = param.get('slug') as string;
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(null);
+    this.destroy$.complete();
+  }
 
   getNewCity(city: WeatherData) {
     if (!city) {
@@ -60,11 +73,6 @@ export class WeatherScheduleComponent implements OnDestroy{
         this.openWeatherService.hourly.next(this.weatherHourly);
       });
     }
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next(null);
-    this.destroy$.complete();
   }
 
   getTypeValue(type: string) {

@@ -8,10 +8,11 @@ import {
   Output
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, switchMap, takeUntil } from 'rxjs';
 import { OpenWeatherService } from '../../services/open-weather.service';
 import { WeatherData } from '../../shared/models/weatherData';
 import { UrlParamsService } from '../../services/url-params.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-cities-filter',
@@ -32,6 +33,7 @@ export class CitiesFilterComponent implements OnInit, OnDestroy {
     private readonly openWeatherService: OpenWeatherService,
     private readonly cdr: ChangeDetectorRef,
     private readonly urlParamsService: UrlParamsService,
+    private readonly route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
@@ -39,37 +41,39 @@ export class CitiesFilterComponent implements OnInit, OnDestroy {
       cities: ['', Validators.required],
     });
 
-    this.urlParamsService.resetParams();
+    this.route.queryParamMap.pipe(
+      takeUntil(this.destroy$),
+    ).subscribe(param => {
+      const city = param.get('city');
+
+      this.form.get('cities')?.setValue(city);
+    });
 
     this.form.get('cities')?.valueChanges.pipe(
-      takeUntil(this.destroy$),
       debounceTime(500),
       distinctUntilChanged(),
-    ).subscribe( city => {
-       if (city) {
-         city.trim();
+      switchMap((city: string) => {
+        this.urlParamsService.resetParams();
+        this.urlParamsService.setUrlParams({
+          city: city,
+        });
 
-         this.urlParamsService.resetParams();
-         this.urlParamsService.setUrlParams({
-           city: city,
-         });
+        return this.openWeatherService.getCity(city)
+      }),
+      takeUntil(this.destroy$),
+    ).subscribe(
+      ([targetCity]: WeatherData[]) => {
 
-         this.openWeatherService.getCity(city).pipe(
-           takeUntil(this.destroy$)
-         ).subscribe( (targetCity: WeatherData[]) => {
-           if (targetCity.length > 0) {
-             this.onCityChanged.emit(targetCity[0]);
-             this.onNotFoundChanged.emit(false);
-           } else {
-             this.onNotFoundChanged.emit(true);
-           }
-         });
+        if (!!targetCity) {
+          this.onCityChanged.emit(targetCity);
+          this.onNotFoundChanged.emit(false);
+        } else {
+          this.onNotFoundChanged.emit(true);
+        }
 
-         this.cdr.detectChanges();
-       } else {
-         this.urlParamsService.resetParams();
-       }
-    })
+        this.cdr.detectChanges();
+      }
+    )
   }
 
   ngOnDestroy() {
